@@ -67,11 +67,16 @@ func cssFits() bool {
 	return x >= edgeMargin && y >= edgeMargin && x+float64(b.Dx()) <= w-edgeMargin && y+float64(b.Dy()) <= h-edgeMargin
 }
 
-// showCSS gives the page the cursor's CSS, or none while drawCursor draws it.
+// showCSS gives the page the cursor's CSS, none while drawCursor draws it, and the
+// browser's own cursor while the game has no pointer (U5 has none: the page's arrow then
+// points at the modern layout's menus and the map).
 func showCSS() {
-	css := "none"
-	if cursorImg != nil && cssFits() {
+	css := ""
+	switch {
+	case cursorImg != nil && cssFits():
 		css = cursorCSS
+	case cursorImg != nil:
+		css = "none"
 	}
 	if css == shownCSS {
 		return
@@ -106,7 +111,7 @@ func opaqueBox(img image.Image, hotX, hotY int) (image.Image, int, int) {
 }
 
 // setCursor makes img (in CSS pixels), with its hot spot at (hotX, hotY), the cursor over
-// the canvas; a nil img hides the cursor.
+// the canvas; a nil img gives the browser's own cursor back.
 func setCursor(img image.Image, hotX, hotY int) {
 	followPointer()
 	if img == nil {
